@@ -169,12 +169,7 @@ public class RunTestsLocallyAction extends AbstractExerciseSensitiveAction {
          * I have no idea how well it will work, but this is a start.
          * --kviiri */
         Project project = projectInfo.getProject();
-        FileObject makeFile = project.getProjectDirectory().getFileObject("Makefile");
         File workDir = projectInfo.getProjectDirAsFile();
-       
-        if (makeFile == null) {
-            throw new RuntimeException("Project has no Makefile");
-        }
         String[] command = {"make", "tmc-check-example"};
         
         final InputOutput io = IOProvider.getDefault().getIO(projectInfo.getProjectName(), false);
