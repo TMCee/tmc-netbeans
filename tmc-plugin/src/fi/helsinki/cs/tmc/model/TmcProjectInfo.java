@@ -92,6 +92,12 @@ public class TmcProjectInfo {
         public AbstractZippingDecider(TmcProjectFile projectFile) {
             this.projectFile = projectFile;
         }
+
+        @Override
+        public boolean shouldZip(File fileOrDirectory) {
+            return !fileOrDirectory.getName().endsWith(".tmcnosubmit") && 
+                    !(fileOrDirectory.isDirectory() && new File(fileOrDirectory, ".tmcnosubmit").exists());
+        }
     }
     
     private static class DefaultZippingDecider extends AbstractZippingDecider {
@@ -100,34 +106,43 @@ public class TmcProjectInfo {
         }
         
         @Override
-        public boolean shouldZip(String zipPath) {
-            if (projectFile.getExtraStudentFiles().contains(withoutRootDir(zipPath))) {
-                return true;
-            } else {
-                return zipPath.contains("/src/");
+        public boolean shouldZip(File fileOrDirectory) {
+            if(!super.shouldZip(fileOrDirectory)) {
+                return false;
             }
-        }
-        
-        private String withoutRootDir(String zipPath) {
-            int i = zipPath.indexOf('/');
-            if (i != -1) {
-                return zipPath.substring(i + 1);
-            } else {
-                return "";
-            }
+            
+            String filepath = fileOrDirectory.getPath();
+            if (!projectFile.getExtraStudentFiles().isEmpty()) {
+                for (String studentFile : projectFile.getExtraStudentFiles()) {
+                    if(filepath.contains(studentFile)) {
+                        return true;
+                    }
+                }
+            } 
+            
+            return filepath.contains("/src/");
         }
     }
     
     private static class MavenZippingDecider extends AbstractZippingDecider {
-        private static final Pattern rejectPattern = Pattern.compile("^[^/]+/(target|lib/testrunner)/.*");
+        private static final Pattern rejectPattern = Pattern.compile(".*/(target|lib)(/|)");
         
         public MavenZippingDecider(TmcProjectFile projectFile) {
             super(projectFile);
         }
         
         @Override
-        public boolean shouldZip(String zipPath) {
-            return !rejectPattern.matcher(zipPath).matches();
+        public boolean shouldZip(File fileOrDirectory) {
+            if(!super.shouldZip(fileOrDirectory)) {
+                return false;
+            }
+            
+            // reject only files that are in the exercise root path
+            if (new File(fileOrDirectory.getParentFile(), "pom.xml").exists()) {
+                return !rejectPattern.matcher(fileOrDirectory.getPath()).matches();
+            }
+            
+            return true;
         }
     }
     
@@ -136,7 +151,7 @@ public class TmcProjectInfo {
             super(projectFile);
         }
         @Override
-        public boolean shouldZip(String zipPath) {
+        public boolean shouldZip(File fileOrDirectory) {
             return true;
         }
     }

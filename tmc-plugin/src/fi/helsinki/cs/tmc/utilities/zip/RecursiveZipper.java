@@ -16,11 +16,8 @@ public class RecursiveZipper {
     public static interface ZippingDecider {
         /**
          * Tells whether the given file or directory should be zipped.
-         * 
-         * Zip paths are separated by slashes and don't have a starting slash.
-         * Directory paths always end in a slash.
          */
-        public boolean shouldZip(String zipPath);
+        public boolean shouldZip(File fileOrDirectory);
     }
     
     public RecursiveZipper(File projectDir, ZippingDecider zippingDecider) {
@@ -74,13 +71,8 @@ public class RecursiveZipper {
 
         File[] files = dir.listFiles();
         for (File file : files) {
-            boolean isDir = file.isDirectory();
-            String zipPath = thisDirZipPath + "/" + file.getName();
-            if (isDir) {
-                zipPath += "/";
-            }
-            if (zippingDecider.shouldZip(zipPath)) {
-                if (isDir) {
+            if (zippingDecider.shouldZip(file)) {
+                if (file.isDirectory()) {
                     zipRecursively(file, zos, thisDirZipPath);
                 } else {
                     writeEntry(file, zos, thisDirZipPath);

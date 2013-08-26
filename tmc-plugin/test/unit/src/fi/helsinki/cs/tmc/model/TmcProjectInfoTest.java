@@ -57,7 +57,8 @@ public class TmcProjectInfoTest {
         new File(mainDir + SLASH + "src" + SLASH + "Foo.txt").createNewFile();
         
         RecursiveZipper.ZippingDecider zd = projectInfo.getZippingDecider();
-        assertTrue(zd.shouldZip("MyExercise/src/FooTest.txt"));
+        File fileToZip = new File(tempDir.get(), "MyExercise/src/FooTest.txt");
+        assertTrue(zd.shouldZip(fileToZip));
     }
     
     @Test
@@ -66,7 +67,7 @@ public class TmcProjectInfoTest {
         new File(mainDir + SLASH + "test" + SLASH + "FooTest.txt").createNewFile();
         
         RecursiveZipper.ZippingDecider zd = projectInfo.getZippingDecider();
-        assertFalse(zd.shouldZip("MyExercise/test/FooTest.txt"));
+        assertFalse(zd.shouldZip(new File(tempDir.get(), "MyExercise/test/FooTest.txt")));
     }
     
     @Test
@@ -77,8 +78,8 @@ public class TmcProjectInfoTest {
         FileUtils.write(new File(mainDir + SLASH + ".tmcproject.yml"), "extra_student_files:\n  - test/IncludedTest.txt", "UTF-8");
         
         RecursiveZipper.ZippingDecider zd = projectInfo.getZippingDecider();
-        assertTrue(zd.shouldZip("MyExercise/test/IncludedTest.txt"));
-        assertFalse(zd.shouldZip("MyExercise/test/Excluded.txt"));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/test/IncludedTest.txt")));
+        assertFalse(zd.shouldZip(new File(tempDir.get(), "MyExercise/test/Excluded.txt")));
     }
     
     @Test
@@ -93,10 +94,10 @@ public class TmcProjectInfoTest {
         new File(mainDir + SLASH + "pom.xml").createNewFile();
         
         RecursiveZipper.ZippingDecider zd = projectInfo.getZippingDecider();
-        assertTrue(zd.shouldZip("MyExercise/src/main/java/Foo.txt"));
-        assertTrue(zd.shouldZip("MyExercise/src/test/java/Bar.txt"));
-        assertTrue(zd.shouldZip("MyExercise/Baz.txt"));
-        assertTrue(zd.shouldZip("MyExercise/xoox/Zab.txt"));
-        assertTrue(zd.shouldZip("MyExercise/pom.xml"));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/src/main/java/Foo.txt")));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/src/test/java/Bar.txt")));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/Baz.txt")));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/xoox/Zab.txt")));
+        assertTrue(zd.shouldZip(new File(tempDir.get(), "MyExercise/pom.xml")));
     }
 }

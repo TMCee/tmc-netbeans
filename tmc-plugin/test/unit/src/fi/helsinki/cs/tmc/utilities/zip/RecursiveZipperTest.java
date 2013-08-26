@@ -44,10 +44,11 @@ public class RecursiveZipperTest {
     public void itShouldZipRecursivelyFilesThatZipDeciderSelects() throws IOException {
         RecursiveZipper.ZippingDecider decider = new RecursiveZipper.ZippingDecider() {
             @Override
-            public boolean shouldZip(String relativeZipPath) {
-                return !relativeZipPath.equals("MyExercise/Excluded.txt") &&
-                        !relativeZipPath.equals("MyExercise/src/Excluded.txt") &&
-                        !relativeZipPath.equals("MyExercise/excluded/");
+            public boolean shouldZip(File fileOrDirectory) {
+                String path = fileOrDirectory.getPath();
+                return !path.contains("MyExercise/Excluded.txt") &&
+                        !path.contains("MyExercise/src/Excluded.txt") &&
+                        !path.contains("MyExercise/excluded/");
             }
         };
         List<String> entries = getZipEntries(decider);
